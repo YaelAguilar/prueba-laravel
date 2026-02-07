@@ -1,59 +1,203 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Módulo de Utilidades - Gas Diamante REPSA
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema para el cálculo y visualización de utilidad bruta, con gestión completa de proveedores, ingresos y gastos.
 
-## About Laravel
+## Requisitos Previos
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.2 o superior
+- Composer
+- MySQL 8.0 o superior
+- Node.js y NPM
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Instalación
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. Clonar el repositorio
+   ```bash
+   git clone <url-del-repositorio>
+   cd prueba-tecnica-laravel
+   ```
 
-## Learning Laravel
+2. Copiar `.env.example` a `.env` y configurar base de datos
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Editar el archivo `.env` y configurar:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=utilities_db
+   DB_USERNAME=tu_usuario
+   DB_PASSWORD=tu_contraseña
+   ```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+3. Instalar dependencias de PHP
+   ```bash
+   composer install
+   ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+4. Instalar dependencias de Node.js
+   ```bash
+   npm install
+   ```
 
-## Laravel Sponsors
+5. Generar clave de aplicación
+   ```bash
+   php artisan key:generate
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+6. Crear la base de datos en MySQL
+   ```sql
+   CREATE DATABASE utilities_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
 
-### Premium Partners
+7. Ejecutar migraciones y seeders
+   ```bash
+   php artisan migrate --seed
+   ```
+   
+   Esto creará las tablas y poblará la base de datos con datos de ejemplo:
+   - 30+ proveedores
+   - 35+ ingresos
+   - 35+ gastos
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+8. Compilar assets (Tailwind CSS)
+   ```bash
+   npm run dev
+   ```
+   
+   O para producción:
+   ```bash
+   npm run build
+   ```
 
-## Contributing
+9. Iniciar servidor de desarrollo
+   ```bash
+   php artisan serve
+   ```
+   
+   La aplicación estará disponible en `http://localhost:8000`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Uso
 
-## Code of Conduct
+### Vista de Utilidades
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- **Ruta:** `/utilities` o `/` (página principal)
+- **Funcionalidades:**
+  - Ver resumen global con totales de ingresos, gastos y utilidad bruta
+  - Filtrar por rango de fechas y/o proveedor
+  - Ver tabla detallada por proveedor con ingresos, gastos y utilidad bruta
+  - Expandir/contraer detalle de ingresos y gastos por proveedor
+  - Indicadores visuales: verde para utilidad positiva, rojo para negativa
 
-## Security Vulnerabilities
+### Gestión de Proveedores
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- **Ruta:** `/providers`
+- **Funcionalidades:**
+  - Listar proveedores con paginación (15 por página)
+  - Buscar proveedores por nombre
+  - Crear nuevos proveedores
+  - Editar proveedores existentes
+  - Eliminar proveedores (con validación: no permite eliminar si tiene ingresos o gastos asociados)
 
-## License
+### Gestión de Ingresos
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Ruta:** `/incomes`
+- **Funcionalidades:**
+  - Listar ingresos con paginación (15 por página)
+  - Filtrar por rango de fechas y/o proveedor
+  - Crear nuevos ingresos
+  - Editar ingresos existentes
+  - Eliminar ingresos con confirmación
+
+### Gestión de Gastos
+
+- **Ruta:** `/expenses`
+- **Funcionalidades:**
+  - Listar gastos con paginación (15 por página)
+  - Filtrar por rango de fechas y/o proveedor
+  - Crear nuevos gastos
+  - Editar gastos existentes
+  - Eliminar gastos con confirmación
+
+## Características
+
+- Cálculo automático de utilidad bruta
+- Filtros dinámicos por fecha y proveedor
+- Indicadores visuales (verde para ganancia, rojo para pérdida)
+- Diseño responsive con Tailwind CSS
+- Validaciones completas en todos los formularios
+- Mensajes de confirmación y feedback al usuario
+- Paginación con persistencia de filtros
+- Búsqueda y filtrado avanzado
+- Optimización de consultas (evita N+1 queries)
+
+## Estructura de Base de Datos
+
+### Tabla: `providers`
+- `id` (PK)
+- `name` (unique)
+- `created_at`, `updated_at`
+
+### Tabla: `incomes`
+- `id` (PK)
+- `provider_id` (FK)
+- `amount` (decimal 12,2)
+- `concept` (string)
+- `date` (date)
+- `description` (text, nullable)
+- `created_at`, `updated_at`
+
+### Tabla: `expenses`
+- `id` (PK)
+- `provider_id` (FK)
+- `amount` (decimal 12,2)
+- `concept` (string)
+- `date` (date)
+- `description` (text, nullable)
+- `created_at`, `updated_at`
+
+## Tecnologías
+
+- Laravel 12.x
+- PHP 8.2+
+- Tailwind CSS 4.x
+- MySQL 8.0+
+- Blade Templates
+- Vite
+
+## Comandos Útiles
+
+```bash
+# Limpiar caché
+php artisan cache:clear
+php artisan config:clear
+php artisan view:clear
+
+# Recrear base de datos desde cero
+php artisan migrate:fresh --seed
+
+# Compilar assets en modo desarrollo (watch)
+npm run dev
+
+# Compilar assets para producción
+npm run build
+```
+
+## Notas de Desarrollo
+
+- El proyecto usa Laravel 12 con PHP 8.2+
+- Tailwind CSS está configurado con Vite
+- Los seeders generan datos realistas usando Faker
+- Las fechas de los seeders están distribuidas en los últimos 3 meses
+- Todas las validaciones están implementadas en los controladores
+- El diseño es completamente responsive usando Tailwind CSS
+
+## Autor
+
+Desarrollado para Gas Diamante REPSA
+
+## Licencia
+
+Este proyecto es privado y confidencial.

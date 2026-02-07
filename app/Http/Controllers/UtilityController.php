@@ -29,46 +29,47 @@ class UtilityController extends Controller
 
         $grossProfit = $totalIncomes - $totalExpenses;
 
-        $providersQuery = Provider::query()
-            ->when($providerId, fn($q) => $q->where('id', $providerId));
+        $providerIds = Provider::query()
+            ->when($providerId, fn($q) => $q->where('id', $providerId))
+            ->pluck('id');
 
-        $providers = $providersQuery->get()->map(function ($provider) use ($dateFrom, $dateTo) {
-            $incomesSum = Income::where('provider_id', $provider->id)
-                ->when($dateFrom, fn($q) => $q->where('date', '>=', $dateFrom))
-                ->when($dateTo, fn($q) => $q->where('date', '<=', $dateTo))
-                ->sum('amount');
+        $incomesByProvider = Income::whereIn('provider_id', $providerIds)
+            ->when($dateFrom, fn($q) => $q->where('date', '>=', $dateFrom))
+            ->when($dateTo, fn($q) => $q->where('date', '<=', $dateTo))
+            ->get()
+            ->groupBy('provider_id');
 
-            $expensesSum = Expense::where('provider_id', $provider->id)
-                ->when($dateFrom, fn($q) => $q->where('date', '>=', $dateFrom))
-                ->when($dateTo, fn($q) => $q->where('date', '<=', $dateTo))
-                ->sum('amount');
+        $expensesByProvider = Expense::whereIn('provider_id', $providerIds)
+            ->when($dateFrom, fn($q) => $q->where('date', '>=', $dateFrom))
+            ->when($dateTo, fn($q) => $q->where('date', '<=', $dateTo))
+            ->get()
+            ->groupBy('provider_id');
 
-            if ($incomesSum == 0 && $expensesSum == 0) {
-                return null;
-            }
+        $providers = Provider::query()
+            ->when($providerId, fn($q) => $q->where('id', $providerId))
+            ->get()
+            ->map(function ($provider) use ($incomesByProvider, $expensesByProvider) {
+                $providerIncomes = $incomesByProvider->get($provider->id, collect());
+                $providerExpenses = $expensesByProvider->get($provider->id, collect());
 
-            $providerIncomes = Income::where('provider_id', $provider->id)
-                ->when($dateFrom, fn($q) => $q->where('date', '>=', $dateFrom))
-                ->when($dateTo, fn($q) => $q->where('date', '<=', $dateTo))
-                ->orderBy('date', 'desc')
-                ->get();
+                $incomesSum = $providerIncomes->sum('amount');
+                $expensesSum = $providerExpenses->sum('amount');
 
-            $providerExpenses = Expense::where('provider_id', $provider->id)
-                ->when($dateFrom, fn($q) => $q->where('date', '>=', $dateFrom))
-                ->when($dateTo, fn($q) => $q->where('date', '<=', $dateTo))
-                ->orderBy('date', 'desc')
-                ->get();
+                if ($incomesSum == 0 && $expensesSum == 0) {
+                    return null;
+                }
 
-            return [
-                'id' => $provider->id,
-                'name' => $provider->name,
-                'total_incomes' => $incomesSum,
-                'total_expenses' => $expensesSum,
-                'gross_profit' => $incomesSum - $expensesSum,
-                'incomes' => $providerIncomes,
-                'expenses' => $providerExpenses,
-            ];
-        })->filter();
+                return [
+                    'id' => $provider->id,
+                    'name' => $provider->name,
+                    'total_incomes' => $incomesSum,
+                    'total_expenses' => $expensesSum,
+                    'gross_profit' => $incomesSum - $expensesSum,
+                    'incomes' => $providerIncomes->sortByDesc('date')->values(),
+                    'expenses' => $providerExpenses->sortByDesc('date')->values(),
+                ];
+            })
+            ->filter();
 
         $allProviders = Provider::orderBy('name')->get();
 

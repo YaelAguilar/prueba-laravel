@@ -14,7 +14,7 @@ Sistema para el cálculo y visualización de utilidad bruta, con gestión comple
 1. Clonar el repositorio
    ```bash
    git clone <url-del-repositorio>
-   cd prueba-tecnica-laravel
+   cd prueba-laravel
    ```
 
 2. Copiar `.env.example` a `.env` y configurar base de datos
